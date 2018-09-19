@@ -1,3 +1,12 @@
 int main(int a){
-    
+    true
+    false
+    12314
+    ff
+    sizeof(ff)
+    input()
+    ff[12]
+    ff()
+    ff(12)
+    (12+12)
 }

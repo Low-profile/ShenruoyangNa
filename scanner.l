@@ -11,7 +11,8 @@ void unrecognized_char(char c);
 WHITESPACE          ([ \t\r\a]+)
 SINGLE_COMMENT1     ("//"[^\n]*)
 SINGLE_COMMENT2     ("#"[^\n]*)
-OPERATOR            ([\^+*-/%=,;!<>(){}:\[\]])
+OPERATOR            ([=,;!(){}:\[\]])
+BINOPERATOR         ([\^+*-/%<>&|])
 INTEGER             ([0-9]+)
 IDENTIFIER          ([_a-zA-Z][_a-zA-Z0-9]*)
 STRING              (\042[^\042\n]*\042)
@@ -23,6 +24,7 @@ STRING              (\042[^\042\n]*\042)
 {SINGLE_COMMENT1}   { /* skip for single line comment */    }
 {SINGLE_COMMENT2}   { /* skip for single line comment */    }
 {OPERATOR}          { return yytext[0]; }
+{BINOPERATOR}        { return T_Binop; }
 
 "int"               { return T_Int; }
 "bool"              { return T_Bool; }
@@ -44,6 +46,7 @@ STRING              (\042[^\042\n]*\042)
 "false"		        { return T_False; }
 "sizeof"	        { return T_SizeOf; }
 "print"             { return T_Print; }
+"input"             { return T_Input; }
 
 
 
