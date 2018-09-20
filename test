@@ -1,12 +1,6 @@
-int main(int a){
-    true
-    false
-    12314
-    ff
-    sizeof(ff)
-    input()
-    ff[12]
-    ff()
-    ff(12)
-    (12+12)
+int main(int a, int b){
+    kk[2] := 3
+    return 1
+    ;312312dfsafasdg
+    abort("1 ",2)
 }

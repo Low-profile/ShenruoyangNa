@@ -23,6 +23,7 @@ T_True,
 T_False,
 T_SizeOf,
 T_Input,
+T_Abort,
 T_NewLine
 
 };
