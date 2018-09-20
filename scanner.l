@@ -12,7 +12,7 @@ WHITESPACE          ([ \t\r\a]+)
 SINGLE_COMMENT2     (";"[^\n]*)
 OPERATOR            ([=,;!\?(){}:\[\]])
 BINOPERATOR         ([\^+*-/%<>&|])
-INTEGER             ([0-9]+)
+INTEGER             (-?[0-9]+)
 IDENTIFIER          ([_a-zA-Z][_a-zA-Z0-9]*)
 STRING              (\042(\\[\042nt\\]|[^\\\n\042])*\042)
 %%
