@@ -1,4 +1,4 @@
-# ShenruoyangNa
+# Compiler for the tiny language
 
 Syntax parsing reimplemented 
 passing all test cases in the passing tests folder except the expc_dc.lil since there is a newline int the first
