@@ -1,0 +1,34 @@
+void populate_fibonacci(array target, int now) {
+    if (((now < 0) | (now >= sizeof(target)))) {
+        return
+    }
+    if ((!(now > 1))) {
+        target[now] := 1
+    } else {
+        target[now] := (target[(now - 1)] + target[(now - 2)])
+        populate_fibonacci(target, (now + 1))
+    }
+}
+
+int main() {
+    int n
+    n := input()
+    if ((n <= 0)) {
+        print("Illegal array size...\n")
+        return -1
+    }
+
+    array data[n]
+    populate_fibonacci(data, 0)
+    print("Fibonacci: ", data[0])
+    int i
+    i := 1
+    while ((i < sizeof(data))) {
+        print(data[i])
+        i := (i + 1)
+    }
+    print("\n")
+    return 0
+}
+
+

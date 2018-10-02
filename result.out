@@ -1,0 +1,86 @@
+
+Parsing file: ./passing-tests/bubblesort.lil
+start parsing Prog
+
+
+parsing completed!
+Parsing file: ./passing-tests/collatz.lil
+start parsing Prog
+else
+else
+else
+parsing completed!
+ReturnStmtAST code gen
+ThenV not null
+ReturnStmtAST code gen
+call expr
+ThenV not null
+ReturnStmtAST code gen
+call expr
+ElseV not null
+ElseV not null
+ret val not null
+collatz_recursive
+Parsing file: ./passing-tests/exp_dc.lil
+start parsing Prog
+else
+else
+parsing completed!
+ReturnStmtAST code gen
+ReturnStmtAST code gen
+ThenV not null
+ReturnStmtAST code gen
+ThenV not null
+ReturnStmtAST code gen
+ElseV not null
+ElseV not null
+ret val not null
+pow
+Parsing file: ./passing-tests/factors.lil
+start parsing Prog
+
+
+parsing completed!
+Parsing file: ./passing-tests/is_array_palindrome.lil
+start parsing Prog
+
+
+parsing completed!
+ReturnStmtAST code gen
+Parsing file: ./passing-tests/is_sorted.lil
+start parsing Prog
+
+
+
+
+else
+parsing completed!
+Parsing file: ./passing-tests/pascal_triangle.lil
+start parsing Prog
+
+
+parsing completed!
+Parsing file: ./passing-tests/populate_fibonacci.lil
+start parsing Prog
+
+
+else
+
+
+parsing completed!
+ReturnStmtAST code gen
+ReturnStmtAST code gen
+populate_fibonacci
+Parsing file: ./passing-tests/sum_factorial.lil
+start parsing Prog
+
+
+parsing completed!
+ReturnStmtAST code gen
+ReturnStmtAST code gen
+ret val not null
+factorial
+ReturnStmtAST code gen
+ReturnStmtAST code gen
+our_print
+ReturnStmtAST code gen

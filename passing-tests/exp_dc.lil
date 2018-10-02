@@ -1,0 +1,24 @@
+int pow(int x, int y) {
+    if ((y < 0)) {
+        print("y in pow cannot be negative!\n")
+        return 0
+    } else {
+        if ((y == 0)) {
+            return 1
+        } else {
+            return ((pow(x, (y / 2)) * pow(x, (y / 2))) * x)
+        }
+    }
+}
+
+int main() {
+    ;this is a simple program
+    int a, b, c
+    a := input()
+    b := input()
+    c := pow(a, b)
+
+    print("pow(", a, ",", b, ") = ", pow(a, b),\
+          ", built-in answer: ", (a ^ b))
+    return 0
+}

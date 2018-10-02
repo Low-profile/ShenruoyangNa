@@ -1,0 +1,28 @@
+    true
+    false
+    12314
+    ff
+    sizeof(ff)
+    input()
+    ff[12]
+    ff()
+    ff(12)
+    (12+12)
+    (!12)
+    (12?12:12)
+    {
+    }
+    array ff[1],ff[3]
+    int ff,ss
+    print(12,13)
+    if(12){
+
+    }else{
+
+    }
+    while(12){
+
+    }
+    for (ident : 12){
+
+    }
