@@ -1,6 +1,13 @@
-int main(int a, int b){
-    kk[2] := 3
+int test(int a){
+    if(1){
+        int b
+        b := 3
+    }else{
+        2
+        int c
+    }
+    while(1){
+
+    }
     return 1
-    ;312312dfsafasdg
-    abort("1 ",2)
 }
