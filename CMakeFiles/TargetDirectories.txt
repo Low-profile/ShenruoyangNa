@@ -1,4 +1,0 @@
-/mnt/f/projects/ShenruoyangNa/CMakeFiles/rebuild_cache.dir
-/mnt/f/projects/ShenruoyangNa/CMakeFiles/little.dir
-/mnt/f/projects/ShenruoyangNa/CMakeFiles/edit_cache.dir
-/mnt/f/projects/ShenruoyangNa/CMakeFiles/intrinsics_gen.dir

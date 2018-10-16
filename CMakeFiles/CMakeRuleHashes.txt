@@ -1,4 +1,0 @@
-# Hashes of file build rules.
-5ef70a4169655e714aed5545dddb22fc lex.yy.c
-81d86a1c893d074a4f68ad5eb533fdea lexer.cpp
-05992c9f0611c786b36662aedb31f277 scanner.h
