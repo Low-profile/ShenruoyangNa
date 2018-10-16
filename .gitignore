@@ -4,3 +4,12 @@
 *.exe
 *.o
 *.so
+*.out
+Makefile
+little
+parser
+output
+llctest/
+benchmarks/
+.vscode/
+CMakeFiles/

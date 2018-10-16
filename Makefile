@@ -111,17 +111,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named parser
+# Target rules for targets named little
 
 # Build rule for target.
-parser: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 parser
-.PHONY : parser
+little: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 little
+.PHONY : little
 
 # fast build rule for target.
-parser/fast:
-	$(MAKE) -f CMakeFiles/parser.dir/build.make CMakeFiles/parser.dir/build
-.PHONY : parser/fast
+little/fast:
+	$(MAKE) -f CMakeFiles/little.dir/build.make CMakeFiles/little.dir/build
+.PHONY : little/fast
 
 #=============================================================================
 # Target rules for targets named intrinsics_gen
@@ -142,7 +142,7 @@ ast.o: ast.cpp.o
 
 # target to build an object file
 ast.cpp.o:
-	$(MAKE) -f CMakeFiles/parser.dir/build.make CMakeFiles/parser.dir/ast.cpp.o
+	$(MAKE) -f CMakeFiles/little.dir/build.make CMakeFiles/little.dir/ast.cpp.o
 .PHONY : ast.cpp.o
 
 ast.i: ast.cpp.i
@@ -151,7 +151,7 @@ ast.i: ast.cpp.i
 
 # target to preprocess a source file
 ast.cpp.i:
-	$(MAKE) -f CMakeFiles/parser.dir/build.make CMakeFiles/parser.dir/ast.cpp.i
+	$(MAKE) -f CMakeFiles/little.dir/build.make CMakeFiles/little.dir/ast.cpp.i
 .PHONY : ast.cpp.i
 
 ast.s: ast.cpp.s
@@ -160,7 +160,7 @@ ast.s: ast.cpp.s
 
 # target to generate assembly for a file
 ast.cpp.s:
-	$(MAKE) -f CMakeFiles/parser.dir/build.make CMakeFiles/parser.dir/ast.cpp.s
+	$(MAKE) -f CMakeFiles/little.dir/build.make CMakeFiles/little.dir/ast.cpp.s
 .PHONY : ast.cpp.s
 
 expr.o: expr.cpp.o
@@ -169,7 +169,7 @@ expr.o: expr.cpp.o
 
 # target to build an object file
 expr.cpp.o:
-	$(MAKE) -f CMakeFiles/parser.dir/build.make CMakeFiles/parser.dir/expr.cpp.o
+	$(MAKE) -f CMakeFiles/little.dir/build.make CMakeFiles/little.dir/expr.cpp.o
 .PHONY : expr.cpp.o
 
 expr.i: expr.cpp.i
@@ -178,7 +178,7 @@ expr.i: expr.cpp.i
 
 # target to preprocess a source file
 expr.cpp.i:
-	$(MAKE) -f CMakeFiles/parser.dir/build.make CMakeFiles/parser.dir/expr.cpp.i
+	$(MAKE) -f CMakeFiles/little.dir/build.make CMakeFiles/little.dir/expr.cpp.i
 .PHONY : expr.cpp.i
 
 expr.s: expr.cpp.s
@@ -187,7 +187,7 @@ expr.s: expr.cpp.s
 
 # target to generate assembly for a file
 expr.cpp.s:
-	$(MAKE) -f CMakeFiles/parser.dir/build.make CMakeFiles/parser.dir/expr.cpp.s
+	$(MAKE) -f CMakeFiles/little.dir/build.make CMakeFiles/little.dir/expr.cpp.s
 .PHONY : expr.cpp.s
 
 lexer.o: lexer.cpp.o
@@ -196,7 +196,7 @@ lexer.o: lexer.cpp.o
 
 # target to build an object file
 lexer.cpp.o:
-	$(MAKE) -f CMakeFiles/parser.dir/build.make CMakeFiles/parser.dir/lexer.cpp.o
+	$(MAKE) -f CMakeFiles/little.dir/build.make CMakeFiles/little.dir/lexer.cpp.o
 .PHONY : lexer.cpp.o
 
 lexer.i: lexer.cpp.i
@@ -205,7 +205,7 @@ lexer.i: lexer.cpp.i
 
 # target to preprocess a source file
 lexer.cpp.i:
-	$(MAKE) -f CMakeFiles/parser.dir/build.make CMakeFiles/parser.dir/lexer.cpp.i
+	$(MAKE) -f CMakeFiles/little.dir/build.make CMakeFiles/little.dir/lexer.cpp.i
 .PHONY : lexer.cpp.i
 
 lexer.s: lexer.cpp.s
@@ -214,7 +214,7 @@ lexer.s: lexer.cpp.s
 
 # target to generate assembly for a file
 lexer.cpp.s:
-	$(MAKE) -f CMakeFiles/parser.dir/build.make CMakeFiles/parser.dir/lexer.cpp.s
+	$(MAKE) -f CMakeFiles/little.dir/build.make CMakeFiles/little.dir/lexer.cpp.s
 .PHONY : lexer.cpp.s
 
 parser.o: parser.cpp.o
@@ -223,7 +223,7 @@ parser.o: parser.cpp.o
 
 # target to build an object file
 parser.cpp.o:
-	$(MAKE) -f CMakeFiles/parser.dir/build.make CMakeFiles/parser.dir/parser.cpp.o
+	$(MAKE) -f CMakeFiles/little.dir/build.make CMakeFiles/little.dir/parser.cpp.o
 .PHONY : parser.cpp.o
 
 parser.i: parser.cpp.i
@@ -232,7 +232,7 @@ parser.i: parser.cpp.i
 
 # target to preprocess a source file
 parser.cpp.i:
-	$(MAKE) -f CMakeFiles/parser.dir/build.make CMakeFiles/parser.dir/parser.cpp.i
+	$(MAKE) -f CMakeFiles/little.dir/build.make CMakeFiles/little.dir/parser.cpp.i
 .PHONY : parser.cpp.i
 
 parser.s: parser.cpp.s
@@ -241,7 +241,7 @@ parser.s: parser.cpp.s
 
 # target to generate assembly for a file
 parser.cpp.s:
-	$(MAKE) -f CMakeFiles/parser.dir/build.make CMakeFiles/parser.dir/parser.cpp.s
+	$(MAKE) -f CMakeFiles/little.dir/build.make CMakeFiles/little.dir/parser.cpp.s
 .PHONY : parser.cpp.s
 
 stmt.o: stmt.cpp.o
@@ -250,7 +250,7 @@ stmt.o: stmt.cpp.o
 
 # target to build an object file
 stmt.cpp.o:
-	$(MAKE) -f CMakeFiles/parser.dir/build.make CMakeFiles/parser.dir/stmt.cpp.o
+	$(MAKE) -f CMakeFiles/little.dir/build.make CMakeFiles/little.dir/stmt.cpp.o
 .PHONY : stmt.cpp.o
 
 stmt.i: stmt.cpp.i
@@ -259,7 +259,7 @@ stmt.i: stmt.cpp.i
 
 # target to preprocess a source file
 stmt.cpp.i:
-	$(MAKE) -f CMakeFiles/parser.dir/build.make CMakeFiles/parser.dir/stmt.cpp.i
+	$(MAKE) -f CMakeFiles/little.dir/build.make CMakeFiles/little.dir/stmt.cpp.i
 .PHONY : stmt.cpp.i
 
 stmt.s: stmt.cpp.s
@@ -268,7 +268,7 @@ stmt.s: stmt.cpp.s
 
 # target to generate assembly for a file
 stmt.cpp.s:
-	$(MAKE) -f CMakeFiles/parser.dir/build.make CMakeFiles/parser.dir/stmt.cpp.s
+	$(MAKE) -f CMakeFiles/little.dir/build.make CMakeFiles/little.dir/stmt.cpp.s
 .PHONY : stmt.cpp.s
 
 # Help Target
@@ -278,7 +278,7 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... rebuild_cache"
-	@echo "... parser"
+	@echo "... little"
 	@echo "... edit_cache"
 	@echo "... intrinsics_gen"
 	@echo "... ast.o"

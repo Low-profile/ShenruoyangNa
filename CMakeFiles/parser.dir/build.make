@@ -198,15 +198,15 @@ parser: CMakeFiles/parser.dir/ast.cpp.o
 parser: CMakeFiles/parser.dir/stmt.cpp.o
 parser: CMakeFiles/parser.dir/expr.cpp.o
 parser: CMakeFiles/parser.dir/build.make
-parser: /usr/local/lib/libLLVMSupport.a
-parser: /usr/local/lib/libLLVMCore.a
-parser: /usr/local/lib/libLLVMIRReader.a
-parser: /usr/local/lib/libLLVMAsmParser.a
-parser: /usr/local/lib/libLLVMBitReader.a
-parser: /usr/local/lib/libLLVMCore.a
-parser: /usr/local/lib/libLLVMBinaryFormat.a
-parser: /usr/local/lib/libLLVMSupport.a
-parser: /usr/local/lib/libLLVMDemangle.a
+parser: /mnt/f/projects/clangbuild/lib/libLLVMSupport.a
+parser: /mnt/f/projects/clangbuild/lib/libLLVMCore.a
+parser: /mnt/f/projects/clangbuild/lib/libLLVMIRReader.a
+parser: /mnt/f/projects/clangbuild/lib/libLLVMAsmParser.a
+parser: /mnt/f/projects/clangbuild/lib/libLLVMBitReader.a
+parser: /mnt/f/projects/clangbuild/lib/libLLVMCore.a
+parser: /mnt/f/projects/clangbuild/lib/libLLVMBinaryFormat.a
+parser: /mnt/f/projects/clangbuild/lib/libLLVMSupport.a
+parser: /mnt/f/projects/clangbuild/lib/libLLVMDemangle.a
 parser: CMakeFiles/parser.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/mnt/f/projects/ShenruoyangNa/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable parser"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/parser.dir/link.txt --verbose=$(VERBOSE)

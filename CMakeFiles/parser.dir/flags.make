@@ -6,5 +6,5 @@ CXX_FLAGS = -std=c++11   -D_GNU_SOURCE -D_DEBUG -D__STDC_CONSTANT_MACROS -D__STD
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/mnt/f/projects/ShenruoyangNa -I/usr/local/include 
+CXX_INCLUDES = -I/mnt/f/projects/ShenruoyangNa -I/mnt/f/projects/llvm/include -I/mnt/f/projects/clangbuild/include 
 

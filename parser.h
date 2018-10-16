@@ -12,6 +12,7 @@ struct token_t
     token type;
 };
 
+
 class Parser
 {
   private:
@@ -47,7 +48,7 @@ class Parser
 
 
     //string
-    bool StringConstant(std::vector<token_t>::size_type idx, std::vector<token_t>::size_type &ret_idx, AST_node *node);
+    bool StringConstant(std::vector<token_t>::size_type idx, std::vector<token_t>::size_type &ret_idx, AST_node *node, std::string& name);
 
 
     // Args : = <, type ident>*
@@ -66,16 +67,17 @@ class Parser
 
     // arrayidents := ident\[expr\]
     //              ident\[expr\] , arrayidents
-    bool ArrayIdents(std::vector<token_t>::size_type idx, std::vector<token_t>::size_type &ret_idx, AST_node *node);
+    
+    std::vector<std::unique_ptr<ExprAST>> ArrayIdents(std::vector<token_t>::size_type idx, std::vector<token_t>::size_type &ret_idx, AST_node *node, std::vector<std::string>& idents_n);
 
 
     // printArg = string|expr
-    bool PrintArg(std::vector<token_t>::size_type idx, std::vector<token_t>::size_type &ret_idx, AST_node *node);
+    std::unique_ptr<printArg_t> PrintArg(std::vector<token_t>::size_type idx, std::vector<token_t>::size_type &ret_idx, AST_node *node);
 
 
     // printArgs :=  printArg
     //              printArg, printArgs
-    bool printArgs(std::vector<token_t>::size_type idx, std::vector<token_t>::size_type &ret_idx, AST_node *node);
+    std::vector<std::unique_ptr<printArg_t>> printArgs(std::vector<token_t>::size_type idx, std::vector<token_t>::size_type &ret_idx, AST_node *node);
 
 
     //  stmtblock :=
@@ -127,12 +129,12 @@ class Parser
 
     // binop :=
     //  + - * ^ / % & | == != > >= < <=
-    bool Binop(std::vector<token_t>::size_type idx, std::vector<token_t>::size_type &ret_idx, AST_node *node);
+    bool Binop(std::vector<token_t>::size_type idx, std::vector<token_t>::size_type &ret_idx, AST_node *node,std::string& name);
 
     // unaryop :=
     //     - !
     //     (bang is Boolean not)
-    bool Unaryop(std::vector<token_t>::size_type idx, std::vector<token_t>::size_type &ret_idx, AST_node *node);
+    bool Unaryop(std::vector<token_t>::size_type idx, std::vector<token_t>::size_type &ret_idx, AST_node *node,std::string& name);
 
 
   public:

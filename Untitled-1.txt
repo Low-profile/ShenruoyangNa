@@ -26,3 +26,46 @@
     for (ident : 12){
 
     }
+
+    
+
+
+void arrayCopy(array arr_L, array arr_R, int size){
+    int idx
+    idx := 0
+    while((idx < size)){
+        ;arr_L[idx] := arr_R[idx]
+        idx := (idx + 1)
+    }
+}
+void arrayConcat(array arr_L, array arr_R1, array arr_R2, int size_R1, int size_R2){
+    int idx
+    idx := 0
+    while((idx < size_R1)){
+        ;arr_L[idx] := arr_R1[idx]
+        idx := (idx + 1)
+    }
+
+    while((idx < (size_R2 + size_R1))){
+        ;arr_L[idx] := arr_R2[idx]
+        idx := (idx + 1)
+    }
+}
+;assign array with 0 to size-1
+void arrayAssign(array arr, int size){
+    int idx
+    idx := 0
+    while((idx < size)){
+        ;arr[idx] := idx
+        idx := (idx + 1)
+    }
+}
+
+    arrayAssign(s,100)
+    arrayAssign(a,50)
+    arrayCopy(b,a,50)
+    arrayConcat(t,a,b,50,50)
+
+
+
+

@@ -1,166 +1,82 @@
 
 #include "parser.h"
 
+
+
+
 using namespace std;
 
-// bool Parser::Stmt(vector<token_t>::size_type idx, vector<token_t>::size_type &ret_idx, AST_node *node)
-// {
-//     auto n_stmtblcok = new AST_node("stmtblock");
-//     auto n_expr = new AST_node("expr");
 
-//     auto n_type = new AST_node("type");
-//     auto n_idents = new AST_node("idents");
+bool Parser::StringConstant(vector<token_t>::size_type idx, vector<token_t>::size_type &ret_idx, AST_node *node, string& name)
+{
+    if (idx < tok_size && tokens[idx].type == T_StringConstant)
+    {
+        node ->appendChild(new AST_node("stringconstant"));
+        ret_idx = idx + 1;
+        name = tokens[idx].literal;
+        return true;
+    }
+    else
+    {
+        ret_idx = idx;
+        return false;
+    }
+}
 
-//     auto n_arrayIdents = new AST_node("arrayIdents");
+string string_replace( const string & s, const string & findS, const std::string & replaceS )
+{
+    string result = s;
+    auto pos = s.find( findS );
+    if ( pos == string::npos ) {
+        return result;
+    }
+    result.replace( pos, findS.length(), replaceS );
+    return string_replace( result, findS, replaceS );
+}
 
-//     auto n_printArgs = new AST_node("printArgs");
+string parse_string(const string& s) {
+    static vector< pair< string, string > > patterns = {
+        { "\\\\" , "\\" },
+        { "\\n", "\n" },
+        { "\\r", "\r" },
+        { "\\t", "\t" }
+        //,{ "\"", "" }
+    };
+    string result = s;
+    for ( const auto & p : patterns ) {
+        result = string_replace( result, p.first, p.second );
+    }
+    return result;
+}
 
-//     auto n_ident = new AST_node("ident");
+unique_ptr<printArg_t> Parser::PrintArg(vector<token_t>::size_type idx, vector<token_t>::size_type &ret_idx, AST_node *node)
+{
 
-//     auto n_expr_2 = new AST_node("expr");
 
-//     if (idx < tok_size)
-//     {
-//         string name;
-
-//         if (Stmtblock(idx, ret_idx, n_stmtblcok)) //   stmtblock
-//         {
-//             node->appendChild(n_stmtblcok);
-//             return true;
-//         }
-//         else if (
-//             tokens[idx].type == T_Array && ArrayIdents(idx + 1, ret_idx, n_arrayIdents)) //   array ident\[expr\] <, ident\[expr\]>*
-//         {
-//             node->appendChild(new AST_node("array"));
-//             node->appendChild(n_arrayIdents);
-//             return true;
-//         }
-//         else if (
-//             Type(idx, ret_idx, n_type, name) && Idents(ret_idx, ret_idx, n_idents)) //   type ident <, ident>*
-//         {
-//             node->appendChild(n_type);
-//             node->appendChild(n_idents);
-//             return true;
-//         }
-
-//         else if (
-//             tokens[idx].type == T_Print && idx + 1 < tok_size && tokens[idx + 1].literal == "(" && printArgs(idx + 2, ret_idx, n_printArgs) && ret_idx < tok_size && tokens[ret_idx].literal == ")") //   print(<string|expr> <, <string|expr> >*
-//         {
-//             node->appendChild(new AST_node("print"));
-//             node->appendChild(new AST_node("("));
-//             node->appendChild(n_printArgs);
-//             node->appendChild(new AST_node(")"));
-//             ret_idx += 1;
-//             return true;
-//         }
-//         else if (
-//             tokens[idx].type == T_Abort && idx + 1 < tok_size && tokens[idx + 1].literal == "(" && printArgs(idx + 2, ret_idx, n_printArgs) && ret_idx < tok_size && tokens[ret_idx].literal == ")") //   abort(<string|expr> <, <string|expr> >*
-//         {
-//             node->appendChild(new AST_node("abort"));
-//             node->appendChild(new AST_node("("));
-//             node->appendChild(n_printArgs);
-//             node->appendChild(new AST_node(")"));
-//             ret_idx += 1;
-//             return true;
-//         }
-//         else if (
-//             tokens[idx].type == T_If && idx + 1 < tok_size && tokens[idx + 1].literal == "(" && Expr(idx + 2, ret_idx, n_expr) && ret_idx < tok_size && tokens[ret_idx].literal == ")" && Stmtblock(ret_idx + 1, ret_idx, n_stmtblcok)) //   if (expr) stmtblock [else stmtblock]
-//         {
-//             auto tmp_idx = ret_idx;
-//             node->appendChild(new AST_node("if"));
-//             node->appendChild(new AST_node("("));
-//             node->appendChild(n_expr);
-//             node->appendChild(new AST_node(")"));
-//             node->appendChild(n_stmtblcok);
-
-//             auto n_stmtblcok_ = new AST_node("stmtblock");
-//             if (ret_idx < tok_size && tokens[ret_idx].type == T_Else && Stmtblock(ret_idx + 1, ret_idx, n_stmtblcok_))
-//             {
-//                 node->appendChild(new AST_node("else"));
-//                 node->appendChild(n_stmtblcok_);
-//             }
-//             else
-//                 ret_idx = tmp_idx;
-
-//             return true;
-//         }
-//         else if (
-//             tokens[idx].type == T_While && idx + 1 < tok_size && tokens[idx + 1].literal == "(" && Expr(idx + 2, ret_idx, n_expr) && ret_idx < tok_size && tokens[ret_idx].literal == ")" && Stmtblock(ret_idx + 1, ret_idx, n_stmtblcok)) //   while (expr) stmtblock
-//         {
-//             node->appendChild(new AST_node("while"));
-//             node->appendChild(new AST_node("("));
-//             node->appendChild(n_expr);
-//             node->appendChild(new AST_node(")"));
-//             node->appendChild(n_stmtblcok);
-//             return true;
-//         }
-//         else if (
-//             tokens[idx].type == T_For && idx + 1 < tok_size && tokens[idx + 1].literal == "(" && Ident(idx + 2, ret_idx, n_ident, name) && ret_idx < tok_size && tokens[ret_idx].literal == ":" && Expr(ret_idx + 1, ret_idx, n_expr) && ret_idx < tok_size && tokens[ret_idx].literal == ")" && Stmtblock(ret_idx + 1, ret_idx, n_stmtblcok)) //   for (ident : expr) stmtblock
-//         {
-//             node->appendChild(new AST_node("for"));
-//             node->appendChild(new AST_node("("));
-//             node->appendChild(n_ident);
-//             node->appendChild(new AST_node(":"));
-//             node->appendChild(n_expr);
-//             node->appendChild(new AST_node(")"));
-//             node->appendChild(n_stmtblcok);
-//             return true;
-//         }
-//         else if (
-//             Ident(idx, ret_idx, n_ident, name) && ret_idx < tok_size && tokens[ret_idx].literal == ":" && ret_idx + 1 < tok_size && tokens[ret_idx + 1].literal == "=" && Expr(ret_idx + 2, ret_idx, n_expr)) //   ident := expr
-//         {
-//             node->appendChild(n_ident);
-//             node->appendChild(new AST_node(":"));
-//             node->appendChild(new AST_node("="));
-//             node->appendChild(n_expr);
-//             return true;
-//         }
-//         else if (
-//             Ident(idx, ret_idx, n_ident, name) && ret_idx < tok_size && tokens[ret_idx].literal == "[" && Expr(ret_idx + 1, ret_idx, n_expr) && ret_idx < tok_size && tokens[ret_idx].literal == "]" && ret_idx + 1 < tok_size && tokens[ret_idx + 1].literal == ":" && ret_idx + 2 < tok_size && tokens[ret_idx + 2].literal == "=" && Expr(ret_idx + 3, ret_idx, n_expr_2)) //   ident\[expr\] := expr
-//         {
-//             node->appendChild(n_ident);
-//             node->appendChild(new AST_node("["));
-//             node->appendChild(n_expr);
-//             node->appendChild(new AST_node("]"));
-//             node->appendChild(new AST_node(":"));
-//             node->appendChild(new AST_node("="));
-//             node->appendChild(n_expr_2);
-//             return true;
-//         }
-//         else if (Expr(idx, ret_idx, n_expr)) //   expr
-//         {
-//             node->appendChild(n_expr);
-
-//             return true;
-//         }
-//         // // else if () //   ;[^\n]*
-//         // // {
-//         // //     return true;
-//         // // }
-//         else if (tokens[idx].type == T_Return) //   return [expr]
-//         {
-//             node->appendChild(new AST_node("return"));
-//             if (Expr(idx + 1, ret_idx, n_expr))
-//             {
-//                 node->appendChild(n_expr);
-//             }
-//             else
-//             {
-//                 ret_idx = idx + 1;
-//             }
-//             return true;
-//         }
-//         else
-//         {
-//             return false;
-//         }
-//     }
-//     else
-//     {
-//         ret_idx = idx;
-//         return false;
-//     }
-// }
+    auto n_expr = new AST_node("expr");
+    auto n_string = new AST_node("string");
+    string name;
+    if (auto expr_n = Expr(idx, ret_idx, n_expr))
+    {
+        node->appendChild(n_expr);
+        return llvm::make_unique<printArg_t>("",move(expr_n));
+    }
+    else if (StringConstant(idx, ret_idx, n_string, name))
+    {
+        name.erase( 0, 1 ); // erase the first character
+        name.erase( name.size() - 1 ); // erase the last character
+        // replace(name.begin(), name.end(),'\\\\','\\');
+        name = parse_string(name);
+        node->appendChild(n_string);
+        // cout << "name " << name <<endl;
+        return llvm::make_unique<printArg_t>(name,nullptr);
+    }
+    else
+    {
+        ret_idx = idx;
+        return nullptr;
+    }
+}
 
 vector<unique_ptr<StmtAST>> Parser::Stmts(vector<token_t>::size_type idx, vector<token_t>::size_type &ret_idx, AST_node *node)
 {
@@ -237,37 +153,88 @@ vector<string> Parser::Idents(vector<token_t>::size_type idx, vector<token_t>::s
             node_n.push_back(name);
             return node_n;
         }
-        // if (Ident(idx, ret_idx, n_ident, name))
-        // {
-        //     auto tmp_idx = ret_idx;
-        //     node->appendChild(n_ident);
-        //     auto n_idents = new AST_node("idents");
-        //     if (tokens[ret_idx].literal == "," && Idents(ret_idx + 1, ret_idx, n_idents))
-        //     {
-        //         node->appendChild(new AST_node(","));
-        //         for (auto child : n_idents->children)
-        //         {
-        //             node->appendChild(child);
-        //         }
-        //         delete n_idents;
-        //     }
-        //     else
-        //     {
-        //         ret_idx = tmp_idx;
-        //     }
-
-        //     return true;
-        // }
-        // else
-        // {
-        //     ret_idx = idx;
-        //     return false;
-        // }
     }
     else
     {
         ret_idx = idx;
         return node_n;
+    }
+}
+
+vector<unique_ptr<ExprAST>> Parser::ArrayIdents(vector<token_t>::size_type idx, vector<token_t>::size_type &ret_idx, AST_node *node, vector<string>& idents_n)
+{
+    auto n_ident = new AST_node("ident");
+    auto n_expr = new AST_node("expr");
+    vector<unique_ptr<ExprAST>> expr_v;
+    auto tmp_idx = idx;
+
+    if (idx < tok_size)
+    {
+        while(true)
+        {
+            auto n_ident = new AST_node("ident");
+            string name;
+            if(!Ident(idx, ret_idx, n_ident, name) || tokens[ret_idx].literal != "[")
+            {
+                ret_idx = tmp_idx;
+                return expr_v;
+            }
+            auto expr_n = Expr(ret_idx + 1, ret_idx, n_expr);
+            if(!expr_n || tokens[ret_idx].literal != "]")
+            {
+                ret_idx = tmp_idx;
+                return expr_v;
+            }
+            else if(ret_idx + 1 < tok_size && tokens[ret_idx + 1].literal == ",")
+            {
+                idents_n.push_back(name);
+                expr_v.push_back(move(expr_n));
+                idx = ret_idx + 2;
+                continue;
+            }
+            idents_n.push_back(name);
+            expr_v.push_back(move(expr_n));
+            ret_idx = ret_idx + 1;
+            return expr_v;
+        }
+    }
+    else
+    {
+        ret_idx = idx;
+        return expr_v;
+    }
+}
+
+
+vector<unique_ptr<printArg_t>> Parser::printArgs(vector<token_t>::size_type idx, vector<token_t>::size_type &ret_idx, AST_node *node)
+{
+    //auto n_printArg = new AST_node("printArg");
+    auto tmp_idx = idx;
+    vector<unique_ptr<printArg_t>> printArg_n;
+    if (idx < tok_size)
+    {
+        while(true)
+        {
+            auto arg = PrintArg(idx, ret_idx, node);
+            if(!arg)
+            {
+                ret_idx = tmp_idx;
+                return printArg_n;
+            }
+            else if(ret_idx < tok_size && tokens[ret_idx].literal == ",")
+            {
+                printArg_n.push_back(move(arg));
+                idx = ret_idx + 1;
+                continue;
+            }
+            printArg_n.push_back(move(arg));
+            return printArg_n;
+        }
+    }
+    else
+    {
+        ret_idx = idx;
+        return printArg_n;
     }
 }
 
@@ -291,17 +258,24 @@ unique_ptr<StmtAST> Parser::Stmt(vector<token_t>::size_type idx, vector<token_t>
     {
         string name;
 
-        if (Stmtblock(idx, ret_idx, n_stmtblcok)) //   stmtblock
+        if (auto stmtblock_n = Stmtblock(idx, ret_idx, n_stmtblcok)) //   stmtblock
         {
             node->appendChild(n_stmtblcok);
-            return llvm::make_unique<ReturnStmtAST>();
+            return move(stmtblock_n);
         }
         else if (
-            tokens[idx].type == T_Array && ArrayIdents(idx + 1, ret_idx, n_arrayIdents)) //   array ident\[expr\] <, ident\[expr\]>*
+            tokens[idx].type == T_Array ) //   array ident\[expr\] <, ident\[expr\]>*
         {
+            vector<string> arrdecl_n;
+            auto arrdeclsize_n = ArrayIdents(idx + 1, ret_idx, n_arrayIdents, arrdecl_n);
+            if (arrdeclsize_n.empty())
+            {
+                ret_idx = idx;
+                return nullptr;
+            }
             node->appendChild(new AST_node("array"));
             node->appendChild(n_arrayIdents);
-            return llvm::make_unique<ReturnStmtAST>();
+            return llvm::make_unique<ArrDeclStmtAST>(move(arrdecl_n),move(arrdeclsize_n));
         }
         else if (
             Type(idx, ret_idx, n_type, name )) //   type ident <, ident>*
@@ -314,24 +288,40 @@ unique_ptr<StmtAST> Parser::Stmt(vector<token_t>::size_type idx, vector<token_t>
             }
             node->appendChild(n_type);
             node->appendChild(n_idents);
-            return llvm::make_unique<DeclStmtAST>(move(decls));
+            return llvm::make_unique<DeclStmtAST>(name, move(decls));
         }
 
         else if (
-            tokens[idx].type == T_Print && idx + 1 < tok_size && tokens[idx + 1].literal == "(" && printArgs(idx + 2, ret_idx, n_printArgs) && ret_idx < tok_size && tokens[ret_idx].literal == ")") //   print(<string|expr> <, <string|expr> >*
+            tokens[idx].type == T_Print && idx + 1 < tok_size && tokens[idx + 1].literal == "(" 
+            // && printArgs(idx + 2, ret_idx, n_printArgs) 
+            // && ret_idx < tok_size && tokens[ret_idx].literal == ")"
+            ) //   print(<string|expr> <, <string|expr> >*
         {
-            node->appendChild(new AST_node("print"));
+            auto args =printArgs(idx + 2, ret_idx, n_printArgs);
+            if(args.empty() || ret_idx >= tok_size || tokens[ret_idx].literal != ")")
+            {
+                ret_idx = idx;
+                return nullptr;
+            }
             node->appendChild(n_printArgs);
             ret_idx += 1;
-            return llvm::make_unique<ReturnStmtAST>();
+            return llvm::make_unique<printStmtAST>(move(args));
         }
         else if (
-            tokens[idx].type == T_Abort && idx + 1 < tok_size && tokens[idx + 1].literal == "(" && printArgs(idx + 2, ret_idx, n_printArgs) && ret_idx < tok_size && tokens[ret_idx].literal == ")") //   abort(<string|expr> <, <string|expr> >*
+            tokens[idx].type == T_Abort && idx + 1 < tok_size && tokens[idx + 1].literal == "(" 
+            // && printArgs(idx + 2, ret_idx, n_printArgs) 
+            // && ret_idx < tok_size && tokens[ret_idx].literal == ")"
+            ) //   abort(<string|expr> <, <string|expr> >*
         {
-            node->appendChild(new AST_node("abort"));
+            auto args =printArgs(idx + 2, ret_idx, n_printArgs);
+            if(args.empty() || ret_idx >= tok_size || tokens[ret_idx].literal != ")")
+            {
+                ret_idx = idx;
+                return nullptr;
+            }
             node->appendChild(n_printArgs);
             ret_idx += 1;
-            return llvm::make_unique<ReturnStmtAST>();
+            return llvm::make_unique<abortStmtAST>(move(args));
         }
         else if (
             tokens[idx].type == T_If 
@@ -353,7 +343,7 @@ unique_ptr<StmtAST> Parser::Stmt(vector<token_t>::size_type idx, vector<token_t>
                     node->appendChild(n_stmtblcok);
                     auto n_stmtblcok_ = new AST_node("stmtblock");
 
-                    cout << tokens[ret_idx].literal <<endl;
+                    // cout << tokens[ret_idx].literal <<endl;
                     if (ret_idx < tok_size && tokens[ret_idx].type == T_Else )
                     {
                         if(auto else_n = Stmtblock(ret_idx + 1, ret_idx, n_stmtblcok_))
@@ -420,13 +410,30 @@ unique_ptr<StmtAST> Parser::Stmt(vector<token_t>::size_type idx, vector<token_t>
             return llvm::make_unique<ForStmtAST>(move(expr_n),move(stmtblock_n));
         }
         else if (
-            tokens[idx].type == T_For && idx + 1 < tok_size && tokens[idx + 1].literal == "(" && Ident(idx + 2, ret_idx, n_ident, name) && ret_idx < tok_size && tokens[ret_idx].literal == ":" && Expr(ret_idx + 1, ret_idx, n_expr) && ret_idx < tok_size && tokens[ret_idx].literal == ")" && Stmtblock(ret_idx + 1, ret_idx, n_stmtblcok)) //   for (ident : expr) stmtblock
+            tokens[idx].type == T_For && idx + 1 < tok_size && tokens[idx + 1].literal == "(" 
+            && Ident(idx + 2, ret_idx, n_ident, name) 
+            && ret_idx < tok_size && tokens[ret_idx].literal == ":" 
+            // && Expr(ret_idx + 1, ret_idx, n_expr) 
+            // && ret_idx < tok_size && tokens[ret_idx].literal == ")" 
+            // && Stmtblock(ret_idx + 1, ret_idx, n_stmtblcok) //   for (ident : expr) stmtblock
+        )
         {
-            node->appendChild(new AST_node("for"));
+            auto expr_n = Expr(ret_idx + 1, ret_idx, n_expr); 
+            if(!expr_n || ret_idx >= tok_size || tokens[ret_idx].literal != ")" )
+            {
+                ret_idx = idx;
+                return nullptr;
+            }
+            auto stmtblock_n = Stmtblock(ret_idx + 1, ret_idx, n_stmtblcok);
+            if(!stmtblock_n)
+            {
+                ret_idx = idx;
+                return nullptr;
+            }
             node->appendChild(n_ident);
             node->appendChild(n_expr);
             node->appendChild(n_stmtblcok);
-            return llvm::make_unique<ReturnStmtAST>();
+            return llvm::make_unique<forarrStmtAST>(name, move(expr_n), move(stmtblock_n));
         }
         else if (
             Ident(idx, ret_idx, n_ident, name) 
@@ -445,12 +452,28 @@ unique_ptr<StmtAST> Parser::Stmt(vector<token_t>::size_type idx, vector<token_t>
             return llvm::make_unique<AssignmentStmtAST>(name, move(expr_n));
         }
         else if (
-            Ident(idx, ret_idx, n_ident, name) && ret_idx < tok_size && tokens[ret_idx].literal == "[" && Expr(ret_idx + 1, ret_idx, n_expr) && ret_idx < tok_size && tokens[ret_idx].literal == "]" && ret_idx + 1 < tok_size && tokens[ret_idx + 1].literal == ":" && ret_idx + 2 < tok_size && tokens[ret_idx + 2].literal == "=" && Expr(ret_idx + 3, ret_idx, n_expr_2)) //   ident\[expr\] := expr
+            Ident(idx, ret_idx, n_ident, name) 
+            && ret_idx < tok_size && tokens[ret_idx].literal == "[" 
+            ) //   ident\[expr\] := expr
         {
+            auto arr_idx =  Expr(ret_idx + 1, ret_idx, n_expr);
+            if(!arr_idx || ret_idx >= tok_size || tokens[ret_idx].literal != "]" 
+            || ret_idx + 1 >= tok_size || tokens[ret_idx + 1].literal != ":" 
+            || ret_idx + 2 >= tok_size || tokens[ret_idx + 2].literal != "=" )
+            {
+                ret_idx = idx;
+                return nullptr;
+            }
+            auto expr_n =Expr(ret_idx + 3, ret_idx, n_expr_2);
+            if(!expr_n)
+            {
+                ret_idx = idx;
+                return nullptr;
+            }
             node->appendChild(n_ident);
             node->appendChild(n_expr);
             node->appendChild(n_expr_2);
-            return llvm::make_unique<ReturnStmtAST>();
+            return llvm::make_unique<ArrAssignmentStmtAST>(name, move(expr_n), move(arr_idx));
         }
         else if (auto expr_n = Expr(idx, ret_idx, n_expr)) //   expr
         {
@@ -458,10 +481,6 @@ unique_ptr<StmtAST> Parser::Stmt(vector<token_t>::size_type idx, vector<token_t>
 
             return llvm::make_unique<ExprStmtAST>(move(expr_n));
         }
-        // // else if () //   ;[^\n]*
-        // // {
-        // //     return true;
-        // // }
         else if (tokens[idx].type == T_Return) //   return [expr]
         {
             node->appendChild(new AST_node("return"));

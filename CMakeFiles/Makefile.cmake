@@ -11,11 +11,11 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/3.10.2/CMakeCXXCompiler.cmake"
   "CMakeFiles/3.10.2/CMakeSystem.cmake"
   "CMakeLists.txt"
-  "/usr/local/lib/cmake/llvm/LLVM-Config.cmake"
-  "/usr/local/lib/cmake/llvm/LLVMConfig.cmake"
-  "/usr/local/lib/cmake/llvm/LLVMConfigVersion.cmake"
-  "/usr/local/lib/cmake/llvm/LLVMExports-debug.cmake"
-  "/usr/local/lib/cmake/llvm/LLVMExports.cmake"
+  "/mnt/f/projects/clangbuild/lib/cmake/llvm/LLVMBuildTreeOnlyTargets.cmake"
+  "/mnt/f/projects/clangbuild/lib/cmake/llvm/LLVMConfig.cmake"
+  "/mnt/f/projects/clangbuild/lib/cmake/llvm/LLVMConfigVersion.cmake"
+  "/mnt/f/projects/clangbuild/lib/cmake/llvm/LLVMExports.cmake"
+  "/mnt/f/projects/llvm/cmake/modules/LLVM-Config.cmake"
   "/usr/share/cmake-3.10/Modules/CMakeCInformation.cmake"
   "/usr/share/cmake-3.10/Modules/CMakeCXXInformation.cmake"
   "/usr/share/cmake-3.10/Modules/CMakeCommonLanguageInclude.cmake"
@@ -50,6 +50,6 @@ set(CMAKE_MAKEFILE_PRODUCTS
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
-  "CMakeFiles/parser.dir/DependInfo.cmake"
+  "CMakeFiles/little.dir/DependInfo.cmake"
   "CMakeFiles/intrinsics_gen.dir/DependInfo.cmake"
   )

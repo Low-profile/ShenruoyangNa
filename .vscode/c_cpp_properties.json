@@ -4,7 +4,7 @@
             "name": "WSL",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/usr/local/include/**"
+                "/mnt/f/projects/llvm/include/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

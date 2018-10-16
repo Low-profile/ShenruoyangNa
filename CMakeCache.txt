@@ -130,7 +130,7 @@ CMAKE_OBJCOPY:FILEPATH=/usr/bin/objcopy
 CMAKE_OBJDUMP:FILEPATH=/usr/bin/objdump
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=IntervalBitwise
+CMAKE_PROJECT_NAME:STATIC=little
 
 //Path to a program.
 CMAKE_RANLIB:FILEPATH=/usr/bin/ranlib
@@ -197,7 +197,13 @@ IntervalBitwise_BINARY_DIR:STATIC=/mnt/f/projects/ShenruoyangNa
 IntervalBitwise_SOURCE_DIR:STATIC=/mnt/f/projects/ShenruoyangNa
 
 //The directory containing a CMake configuration file for LLVM.
-LLVM_DIR:PATH=/usr/local/lib/cmake/llvm
+LLVM_DIR:PATH=/mnt/f/projects/clangbuild/lib/cmake/llvm
+
+//Value Computed by CMake
+little_BINARY_DIR:STATIC=/mnt/f/projects/ShenruoyangNa
+
+//Value Computed by CMake
+little_SOURCE_DIR:STATIC=/mnt/f/projects/ShenruoyangNa
 
 
 ########################

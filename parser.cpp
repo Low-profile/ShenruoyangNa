@@ -4,15 +4,21 @@
 #include <tuple>
 #include <iomanip>
 #include <llvm/IR/BasicBlock.h>
+#include <llvm/Support/raw_ostream.h>
+#include <llvm/Support/FileSystem.h>
+
+
 
 #include "parser.h"
+#include <fstream>
 
 using namespace std;
 
 LLVMContext TheContext;
 IRBuilder<> Builder(TheContext);
 unique_ptr<Module> TheModule;
-map<string, Value *> NamedValues;
+map<string, AllocaInst *> NamedValues;
+
 
 extern int yylineno;
 extern char *yytext;
@@ -173,7 +179,7 @@ unique_ptr<FunctionAST> Parser::Func(vector<token_t>::size_type idx, vector<toke
     string name;
     vector<tuple<string,string>> args;
 
-    if (idx < tok_size && Type(idx, ret_idx, node, type)
+    if (Type(idx, ret_idx, node, type)
     && Ident(ret_idx, ret_idx, node, name) 
     && tokens[ret_idx].literal == "(" 
     && Args(ret_idx + 1, ret_idx, n_args, args)
@@ -184,7 +190,7 @@ unique_ptr<FunctionAST> Parser::Func(vector<token_t>::size_type idx, vector<toke
         {
             node->appendChild(n_args);
             node->appendChild(n_stmtblock);
-            return llvm::make_unique<FunctionAST>(name,args, move(stmtblock_n));
+            return llvm::make_unique<FunctionAST>(type,name,args, move(stmtblock_n));
         }
         else
         {
@@ -241,19 +247,7 @@ bool Parser::Ident(vector<token_t>::size_type idx, vector<token_t>::size_type &r
     }
 }
 
-bool Parser::StringConstant(vector<token_t>::size_type idx, vector<token_t>::size_type &ret_idx, AST_node *node)
-{
-    if (idx < tok_size && tokens[idx].type == T_StringConstant)
-    {
-        ret_idx = idx + 1;
-        return true;
-    }
-    else
-    {
-        ret_idx = idx;
-        return false;
-    }
-}
+
 
 bool Parser::Args(vector<token_t>::size_type idx, vector<token_t>::size_type &ret_idx, AST_node *node, vector<tuple<string,string>>& node_n)
 {
@@ -320,119 +314,21 @@ unique_ptr<StmtblockAST> Parser::Stmtblock(vector<token_t>::size_type idx, vecto
 }
 
 
-bool Parser::ArrayIdents(vector<token_t>::size_type idx, vector<token_t>::size_type &ret_idx, AST_node *node)
+
+
+
+
+
+bool Parser::Binop(vector<token_t>::size_type idx, vector<token_t>::size_type &ret_idx, AST_node *node,string& name)
 {
-    auto n_ident = new AST_node("ident");
-    auto n_expr = new AST_node("expr");
-
-    string name;
-    if (idx < tok_size)
-    {
-        if (Ident(idx, ret_idx, n_ident, name) && tokens[ret_idx].literal == "[" && Expr(ret_idx + 1, ret_idx, n_expr) && tokens[ret_idx].literal == "]")
-        {
-            auto tmp_idx = ret_idx + 1;
-            node->appendChild(n_ident);
-            node->appendChild(new AST_node("["));
-            node->appendChild(n_expr);
-            node->appendChild(new AST_node("]"));
-            auto n_arrayidents = new AST_node("arrayidents");
-            if (ret_idx + 1 < tok_size && tokens[ret_idx + 1].literal == "," && ArrayIdents(ret_idx + 2, ret_idx, n_arrayidents))
-            {
-                node->appendChild(new AST_node(","));
-                for (auto child : n_arrayidents->children)
-                {
-                    node->appendChild(child);
-                }
-                delete n_arrayidents;
-            }
-            else
-            {
-                ret_idx = tmp_idx;
-            }
-            return true;
-        }
-        else
-        {
-            ret_idx = idx;
-            return false;
-        }
-    }
-    else
-    {
-        ret_idx = idx;
-        return false;
-    }
-}
-
-bool Parser::PrintArg(vector<token_t>::size_type idx, vector<token_t>::size_type &ret_idx, AST_node *node)
-{
-    auto n_expr = new AST_node("expr");
-    auto n_string = new AST_node("string");
-    if (
-        Expr(idx, ret_idx, n_expr))
-    {
-        node->appendChild(n_expr);
-        return true;
-    }
-    else if (StringConstant(idx, ret_idx, n_string))
-    {
-        node->appendChild(n_string);
-        return true;
-    }
-    else
-    {
-        ret_idx = idx;
-        return false;
-    }
-}
-
-bool Parser::printArgs(vector<token_t>::size_type idx, vector<token_t>::size_type &ret_idx, AST_node *node)
-{
-    //auto n_printArg = new AST_node("printArg");
-
-    if (idx < tok_size)
-    {
-        if (PrintArg(idx, ret_idx, node))
-        {
-            auto tmp_idx = ret_idx;
-            //node->appendChild(n_printArg);
-            auto n_printArgs = new AST_node("printArgs");
-            if (tokens[ret_idx].literal == "," && printArgs(ret_idx + 1, ret_idx, n_printArgs))
-            {
-                node->appendChild(new AST_node(","));
-                for (auto child : n_printArgs->children)
-                {
-                    node->appendChild(child);
-                }
-                delete n_printArgs;
-            }
-            else
-            {
-                ret_idx = tmp_idx;
-            }
-            return true;
-        }
-        else
-        {
-            ret_idx = idx;
-            return false;
-        }
-    }
-    else
-    {
-        ret_idx = idx;
-        return false;
-    }
-}
-
-
-
-
-bool Parser::Binop(vector<token_t>::size_type idx, vector<token_t>::size_type &ret_idx, AST_node *node)
-{
-    if (idx < tok_size && tokens[idx].type == T_Binop || tokens[idx].type == T_Eq || tokens[idx].type == T_Le || tokens[idx].type == T_Ne || tokens[idx].type == T_Ge)
+    if (idx < tok_size && tokens[idx].type == T_Binop 
+    || tokens[idx].type == T_Eq 
+    || tokens[idx].type == T_Le 
+    || tokens[idx].type == T_Ne 
+    || tokens[idx].type == T_Ge)
     {
         node->appendChild(new AST_node(tokens[idx].literal));
+        name =tokens[idx].literal;
         ret_idx = idx + 1;
         return true;
     }
@@ -440,11 +336,12 @@ bool Parser::Binop(vector<token_t>::size_type idx, vector<token_t>::size_type &r
         return false;
 }
 
-bool Parser::Unaryop(vector<token_t>::size_type idx, vector<token_t>::size_type &ret_idx, AST_node *node)
+bool Parser::Unaryop(vector<token_t>::size_type idx, vector<token_t>::size_type &ret_idx, AST_node *node,string& name)
 {
     if (idx < tok_size && tokens[idx].literal == "!" || tokens[idx].literal == "-")
     {
         node->appendChild(new AST_node(tokens[idx].literal));
+        name =tokens[idx].literal;
         ret_idx = idx + 1;
         return true;
     }
@@ -471,9 +368,19 @@ int main(int argc, char **argv)
     if (p.parse())
     {
         cout << "success" << endl;
-        p.printTree();
-        TheModule->print(errs(), nullptr);
+        //p.printTree();
 
+        raw_ostream& outHandle = outs();
+        std::string ir_file = "test.ll";
+        if (!ir_file.empty()) {
+            std::error_code errc;
+            llvm::raw_fd_ostream outfile(ir_file, errc, llvm::sys::fs::OpenFlags::F_None);
+            TheModule->print(outfile, nullptr);
+            outfile.close();
+
+            system("clang runtime.c test.ll -o a.out");
+
+        }
         return 0;
     }
     else
