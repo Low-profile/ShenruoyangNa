@@ -7,6 +7,7 @@ an extra newline is needed after each function in our current grammer, so i didn
 # usage
 
 cmake .
+
 make
 
 ./little filename
