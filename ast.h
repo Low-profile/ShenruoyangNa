@@ -56,9 +56,9 @@ public:
 class NumberExprAST : public ExprAST
 {
   int Val;
-
+  int width;
 public:
-  NumberExprAST(int Val) : Val(Val) {}
+  NumberExprAST(int Val, int width) : Val(Val),width(width) {}
 
   Value *codegen(std::map<std::string, AllocaInst *>& NamedValues) override;
 };
@@ -226,11 +226,12 @@ public:
 /// BoolExprAST - Expression class for numeric literals like "1.0".
 class DeclStmtAST : public StmtAST
 {
+  int width;
   std::string type;
   std::vector<std::string> idents;
 public:
-  DeclStmtAST(std::string type, std::vector<std::string> Idents) : 
-    type(type), idents(std::move(Idents)) {}
+  DeclStmtAST(std::string type, std::vector<std::string> Idents, int width) : 
+    type(type), idents(std::move(Idents)), width(width) {}
 
   void printIdents()
   {
@@ -307,14 +308,15 @@ public:
 };
 
 class forarrStmtAST : public StmtAST {
+  int width;
   std::string iterator;
   std::unique_ptr<ExprAST> array;
   std::unique_ptr<StmtblockAST> Body;
 
 public:
   forarrStmtAST(std::string iterator, std::unique_ptr<ExprAST> array,
-             std::unique_ptr<StmtblockAST> Body)
-    :iterator(iterator), array(std::move(array)), Body(std::move(Body)) {}
+             std::unique_ptr<StmtblockAST> Body,int width)
+    :iterator(iterator), array(std::move(array)), Body(std::move(Body)), width(width) {}
   std::string getarrName()
   {
     return array->getName();
@@ -344,13 +346,15 @@ public:
 /// FunctionAST - This class represents a function definition itself.
 class FunctionAST
 {
+  int width;
   std::string Name,type;
   std::vector<std::tuple<std::string,std::string>> Args;
   std::unique_ptr<StmtblockAST> Body;
 
 public:
-  FunctionAST(const std::string &type, const std::string &Name, std::vector<std::tuple<std::string,std::string>> Args, std::unique_ptr<StmtblockAST> Body)
-      : type(type), Name(Name), Args(std::move(Args)), Body(std::move(Body)) {}
+  FunctionAST(const std::string &type, const std::string &Name, std::vector<std::tuple<std::string,std::string>> Args, std::unique_ptr<StmtblockAST> Body, int width = 64)
+      : type(type), Name(Name), Args(std::move(Args)), Body(std::move(Body)), width(width)
+      {}
 
   Function *codegen();
 
@@ -361,11 +365,12 @@ public:
 /// FunctionAST - This class represents a function definition itself.
 class ProgramAST
 {
+  int width;
   std::vector<std::unique_ptr<FunctionAST>> Funcs;
 
 public:
-  ProgramAST(std::vector<std::unique_ptr<FunctionAST>> Funcs)
-      : Funcs(std::move(Funcs)) {}
+  ProgramAST(std::vector<std::unique_ptr<FunctionAST>> Funcs, int width)
+      : Funcs(std::move(Funcs)),width(width) {}
 
   void codegen();
 };

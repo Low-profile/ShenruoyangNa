@@ -64,7 +64,7 @@ unique_ptr<ExprAST> Parser::Expr(vector<token_t>::size_type idx, vector<token_t>
             auto n_constant = new AST_node("constant");
             node->appendChild(n_constant);
             ret_idx = idx + 1;
-            return llvm::make_unique<NumberExprAST>(atof(tokens[idx].literal.c_str()));
+            return llvm::make_unique<NumberExprAST>(atof(tokens[idx].literal.c_str()), integer_width);
         }
         else if (tokens[idx].type == T_Identifier) //       ident
         {
@@ -174,7 +174,7 @@ unique_ptr<ExprAST> Parser::Expr(vector<token_t>::size_type idx, vector<token_t>
                     node->appendChild(n_expr2);
                     node->appendChild(n_expr3);
                     ret_idx = ret_idx + 1;
-                    return llvm::make_unique<NumberExprAST>(0);
+                    return llvm::make_unique<NumberExprAST>(0, integer_width);
                 }
                 else
                     ret_idx = idx;

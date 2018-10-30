@@ -288,7 +288,7 @@ unique_ptr<StmtAST> Parser::Stmt(vector<token_t>::size_type idx, vector<token_t>
             }
             node->appendChild(n_type);
             node->appendChild(n_idents);
-            return llvm::make_unique<DeclStmtAST>(name, move(decls));
+            return llvm::make_unique<DeclStmtAST>(name, move(decls),integer_width);
         }
 
         else if (
@@ -433,7 +433,7 @@ unique_ptr<StmtAST> Parser::Stmt(vector<token_t>::size_type idx, vector<token_t>
             node->appendChild(n_ident);
             node->appendChild(n_expr);
             node->appendChild(n_stmtblcok);
-            return llvm::make_unique<forarrStmtAST>(name, move(expr_n), move(stmtblock_n));
+            return llvm::make_unique<forarrStmtAST>(name, move(expr_n), move(stmtblock_n), integer_width);
         }
         else if (
             Ident(idx, ret_idx, n_ident, name) 

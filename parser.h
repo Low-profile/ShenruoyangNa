@@ -16,6 +16,8 @@ struct token_t
 class Parser
 {
   private:
+    int integer_width;
+
     AST_node root;
     std::vector<token_t> tokens;
     std::vector<token_t>::size_type tok_size;
@@ -138,9 +140,9 @@ class Parser
 
 
   public:
-    Parser(std::string path);
+    Parser(std::string path, int int_width);
     
-    bool parse();
+    std::unique_ptr<ProgramAST> parse();
 
     void printTree();
 };

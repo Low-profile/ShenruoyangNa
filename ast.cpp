@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <scanner.h>
+#include <math.h>
 
 using namespace std;
 
@@ -20,6 +21,7 @@ StructType * StructTy;
 
 BasicBlock *ReturnBB;
 
+int int_width;
 
 AllocaInst *CreateEntryBlockAlloca(Function *TheFunction,
                                           const string &VarName , Type* type) {
@@ -109,7 +111,7 @@ Function *FunctionAST::codegen()
     {
       auto type = get<0>(I);
       if(type == "int")
-          ArgTypes.push_back(Type::getInt64Ty(TheContext));
+          ArgTypes.push_back(Builder.getIntNTy(width));
       else if (type == "array")
       {
         ArgTypes.push_back(PointerType::getUnqual(StructTy));
@@ -119,7 +121,7 @@ Function *FunctionAST::codegen()
 
     Type * retType;
     if (type == "int")
-      retType = Type::getInt64Ty(TheContext);
+      retType = Builder.getIntNTy(width);
     else if(type == "void")
       retType = Type::getVoidTy(TheContext);
     else if(type == "bool")
@@ -170,13 +172,17 @@ Function *FunctionAST::codegen()
   if(type != "void")
   {
     vector<string> tmp = {"retval"};
-    llvm::make_unique<DeclStmtAST>(type,tmp)->codegen(NamedValues);
+    llvm::make_unique<DeclStmtAST>(type,tmp, width)->codegen(NamedValues);
   }
 
 
   auto body_v = Body->codegen(NamedValues);
+
   if (!body_v)
+  {
+    //cout << "no ret stmt \n";
     Builder.CreateBr(ReturnBB);
+  }
 
   TheFunction->getBasicBlockList().push_back(ReturnBB);
   Builder.SetInsertPoint(ReturnBB);
@@ -216,15 +222,12 @@ Value * StmtblockAST::codegen(map<string, AllocaInst *>& NamedValues)
 
     stmt->codegen(NamedValues);
   }
+  // if(!ret_val)
+  //   cout << "no ret stmt \n";
 
   return ret_val;
 }
 
-Value * StmtAST::codegen(map<string, AllocaInst *>& NamedValues)
-{
-  // cout <<  "StmtASTcodegen" <<endl;
-  return nullptr;
-}
 
 Value * ReturnStmtAST::codegen(map<string, AllocaInst *>& NamedValues)
 {
@@ -251,9 +254,10 @@ Value * ExprStmtAST::codegen(map<string, AllocaInst *>& NamedValues)
 
 void ProgramAST::codegen()
 {
+  int_width = this->width;
   declareRuntime();
   StructTy = StructType::create(TheContext, "ty_array");
-  StructTy->setBody(ArrayRef<Type *>({Type::getInt64PtrTy(TheContext), Builder.getInt64Ty()}), false);
+  StructTy->setBody(ArrayRef<Type *>({Type::getIntNPtrTy(TheContext,int_width), Builder.getIntNTy(int_width)}), false);
   // cout << typeid(StructTy).name() << endl;
   for (auto &func : Funcs)
   {
@@ -263,7 +267,7 @@ void ProgramAST::codegen()
 
 Value *NumberExprAST::codegen(map<string, AllocaInst *>& NamedValues) {
 
-  return ConstantInt::get(TheContext, APInt(64,Val));
+  return Builder.getIntN(width,Val);
   // return ConstantFP::get(TheContext, APFloat(Val));
 }
 
@@ -278,8 +282,8 @@ Value *DeclStmtAST::codegen(map<string, AllocaInst *>& NamedValues) {
   {
     if (type == "int")
     {
-      auto* A = Builder.CreateAlloca (Type::getInt64Ty(TheContext), nullptr, ident);
-      auto* L = ConstantInt::get(Type::getInt64Ty(TheContext), 0);
+      auto* A = Builder.CreateAlloca (Builder.getIntNTy(width), nullptr, ident);
+      auto* L = ConstantInt::get(Builder.getIntNTy(width), 0);
       Builder.CreateStore (L, A, false);
         NamedValues[ident] = A;
 
@@ -582,30 +586,38 @@ Value * ArrDeclStmtAST::codegen(map<string, AllocaInst *>& NamedValues)
   // cout << "decl arra\n";
   for (auto i = 0; i< idents.size(); i++)
   {
-    //auto arrayPtr = new llvm::AllocaInst(Type::getInt64Ty(TheContext), "", block);
     auto exprv = arr_size[i]->codegen(NamedValues);
 
     //cout << "exprv code gen" <<endl;
     if(auto expr_int = dyn_cast<ConstantInt>(exprv))
     {
       auto size = expr_int->getZExtValue();
-      auto arrayType = ArrayType::get(Type::getInt64Ty(TheContext), size);
+      auto arrayType = ArrayType::get(Builder.getIntNTy(int_width), size);
       auto arrayPtr = Builder.CreateAlloca(arrayType,0,"");
       auto BitcastPtrChar = Builder.CreateBitCast(arrayPtr, Type::getInt8PtrTy(TheContext));
-      Builder.CreateCall(TheModule->getFunction("llvm.memset.p0i8.i64"), {BitcastPtrChar, Builder.getInt8(0), Builder.getInt64(8 * size), Builder.getInt1(false)});
+      Builder.CreateCall(TheModule->getFunction("llvm.memset.p0i8.i64"), {BitcastPtrChar, Builder.getInt8(0), Builder.getInt64(ceil(int_width/8) * size), Builder.getInt1(false)});
       auto AllocStruct1 = Builder.CreateAlloca(StructTy, nullptr, "arr");
       auto GEPPtrInt64t = Builder.CreateInBoundsGEP(AllocStruct1, {Builder.getInt64(0), Builder.getInt32(0)}, "a1");
       auto GEPInt64t = Builder.CreateInBoundsGEP(arrayPtr, {Builder.getInt64(0), Builder.getInt64(0)}, "arraydecay");
       Builder.CreateStore(GEPInt64t, GEPPtrInt64t);
       auto GEPInt64t2 = Builder.CreateInBoundsGEP(AllocStruct1, {Builder.getInt64(0), Builder.getInt32(1)}, "b2");
-      Builder.CreateStore(Builder.getInt64(size), GEPInt64t2);
+      Builder.CreateStore(Builder.getIntN(int_width,size), GEPInt64t2);
       NamedValues[idents[i]] = AllocStruct1;
     }
     else
     {
-      auto arrayPtr = Builder.CreateAlloca(Type::getInt64Ty(TheContext),exprv,"");
+      auto arrayPtr = Builder.CreateAlloca(Type::getIntNTy(TheContext,int_width),exprv,"");
       auto BitcastPtrChar = Builder.CreateBitCast(arrayPtr, Type::getInt8PtrTy(TheContext));
-      auto memset_size = Builder.CreateMul(exprv, Builder.getInt64(8), "");
+
+      Value * tmp_val;
+      if (int_width < 64)
+        tmp_val =  Builder.CreateSExt(exprv, Builder.getInt64Ty());
+      else if (int_width > 64)
+        tmp_val = Builder.CreateTrunc(exprv, Builder.getInt64Ty());
+      else
+        tmp_val = exprv;      
+
+      auto memset_size = Builder.CreateMul(tmp_val, Builder.getInt64(ceil(int_width/8)), "");
       Builder.CreateCall(TheModule->getFunction("llvm.memset.p0i8.i64"), {BitcastPtrChar, Builder.getInt8(0), memset_size, Builder.getInt1(false)});
       auto AllocStruct1 = Builder.CreateAlloca(StructTy, nullptr, "arr");
       auto GEPPtrInt64t = Builder.CreateInBoundsGEP(AllocStruct1, {Builder.getInt64(0), Builder.getInt32(0)}, "a1");
@@ -624,7 +636,13 @@ Value * ArrDeclStmtAST::codegen(map<string, AllocaInst *>& NamedValues)
 
 Value * inputExprAST::codegen(map<string, AllocaInst *>& NamedValues)
 {
-  return Builder.CreateCall(TheModule->getFunction("extern_input"));
+  auto call_val =  Builder.CreateCall(TheModule->getFunction("extern_input"));
+  if (int_width > 64)
+    return Builder.CreateSExt(call_val, Builder.getIntNTy(int_width));
+  else if (int_width < 64)
+    return Builder.CreateTrunc(call_val, Builder.getIntNTy(int_width));
+  else
+    return call_val;
 }
 
 Value * printStmtAST::codegen(map<string, AllocaInst *>& NamedValues)
@@ -636,8 +654,14 @@ Value * printStmtAST::codegen(map<string, AllocaInst *>& NamedValues)
     {
       //cout << "expr called" << endl;
       auto value = arg->expr->codegen(NamedValues);
-      //cout << "arg generated" << endl;
-      Builder.CreateCall(TheModule->getFunction("extern_print_int"), {value});
+      Value * tmp_val;
+      if (int_width < 64)
+        tmp_val =  Builder.CreateSExt(value, Builder.getInt64Ty());
+      else if (int_width > 64)
+        tmp_val = Builder.CreateTrunc(value, Builder.getInt64Ty());
+      else
+        tmp_val = value;      
+      Builder.CreateCall(TheModule->getFunction("extern_print_int"), {tmp_val});
     }
     else
     {
@@ -662,7 +686,7 @@ Value * abortStmtAST::codegen(map<string, AllocaInst *>& NamedValues)
 Value * forarrStmtAST::codegen(map<string, AllocaInst *>& NamedValues)
 {
   vector<string> idxdeclidents = {"idx"};
-  llvm::make_unique<DeclStmtAST>("int", idxdeclidents)->codegen(NamedValues);
+  llvm::make_unique<DeclStmtAST>("int", idxdeclidents, int_width)->codegen(NamedValues);
 
   auto arr_ident = array->codegen(NamedValues);
   Value* LoadPtrStruct1;
@@ -702,7 +726,7 @@ Value * forarrStmtAST::codegen(map<string, AllocaInst *>& NamedValues)
   Builder.CreateBr(forcondBB);
   Builder.SetInsertPoint(forcondBB);
 
-  PHINode *cond_phi = Builder.CreatePHI(Type::getInt64Ty(TheContext),
+  PHINode *cond_phi = Builder.CreatePHI(Type::getIntNTy(TheContext,int_width),
                                         2, "");
   cond_phi->addIncoming(idx, PreheaderBB);
   auto CondV = Builder.CreateICmpSLT(cond_phi, arr_size);
@@ -729,14 +753,14 @@ Value * forarrStmtAST::codegen(map<string, AllocaInst *>& NamedValues)
   auto val_gep = Builder.CreateInBoundsGEP(arr_ptr, {cond_phi}, "valgep");
   auto it = Builder.CreateLoad(val_gep);
 
-  auto* A = Builder.CreateAlloca(Type::getInt64Ty(TheContext), nullptr, iterator);
+  auto* A = Builder.CreateAlloca(Type::getIntNTy(TheContext,int_width), nullptr, iterator);
   Builder.CreateStore (it, A, false);
   NamedValues[iterator] = A;
 
   auto new_namedvalues = NamedValues;
   Body->codegen(new_namedvalues);
 
-  auto NextVar = Builder.CreateAdd(cond_phi, ConstantInt::get(TheContext, APInt(64,1)), "inc");
+  auto NextVar = Builder.CreateAdd(cond_phi, Builder.getIntN(int_width,1), "inc");
 
 
   // cout << "assgin end\n";

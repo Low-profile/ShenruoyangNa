@@ -30,7 +30,7 @@ int yylex();
 // extern std::unique_ptr<Module> TheModule;
 // extern std::map<std::string, Value *> NamedValues;
 
-Parser::Parser(string path) : root("Prog")
+Parser::Parser(string path, int int_width) : root("Prog"), integer_width(int_width)
 {
     tokens = scanner(path);
     //cout << "scanning complete " << endl;
@@ -42,19 +42,20 @@ Parser::Parser(string path) : root("Prog")
     // }
 }
 
-bool Parser::parse()
+unique_ptr<ProgramAST> Parser::parse()
 {
     vector<token_t>::size_type ret_idx = 0;
     cout << "start parsing " << root.tok <<  endl;
-    if (auto prog = Prog(0, ret_idx, &root))
-    {
-        cout << "parsing completed!" <<  endl;
-        prog->codegen();
-        return true;
-    }
-    else{
-        return false;
-    }
+    // if (auto prog = Prog(0, ret_idx, &root))
+    // {
+    //     cout << "parsing completed!" <<  endl;
+    //     prog->codegen();
+    //     return true;
+    // }
+    // else{
+    //     return false;
+    // }
+    return Prog(0, ret_idx, &root);
 }
 void Parser::printTree()
 {
@@ -155,7 +156,7 @@ unique_ptr<ProgramAST> Parser::Prog(vector<token_t>::size_type idx,vector<token_
             {
                 if(count > 0 && tokens[idx].type == T_EOF)
                 {
-                    return llvm::make_unique<ProgramAST>(move(Funcs));
+                    return llvm::make_unique<ProgramAST>(move(Funcs),integer_width);
                 }
                 else
                     return nullptr;
@@ -190,7 +191,7 @@ unique_ptr<FunctionAST> Parser::Func(vector<token_t>::size_type idx, vector<toke
         {
             node->appendChild(n_args);
             node->appendChild(n_stmtblock);
-            return llvm::make_unique<FunctionAST>(type,name,args, move(stmtblock_n));
+            return llvm::make_unique<FunctionAST>(type,name,args, move(stmtblock_n),integer_width);
         }
         else
         {
@@ -208,7 +209,7 @@ unique_ptr<FunctionAST> Parser::Func(vector<token_t>::size_type idx, vector<toke
 bool Parser::Type(vector<token_t>::size_type idx, vector<token_t>::size_type &ret_idx, AST_node *node, string& node_n)
 {
     if (idx < tok_size &&
-            tokens[idx].type == T_Int ||
+        tokens[idx].type == T_Int ||
         tokens[idx].type == T_Void || tokens[idx].type == T_Bool || tokens[idx].type == T_Array)
     {
         node->appendChild(new AST_node(tokens[idx].literal));
@@ -363,10 +364,27 @@ int main(int argc, char **argv)
     }
 
     TheModule = llvm::make_unique<Module>("my cool jit", TheContext);
-    string path = string(argv[1]);
-    Parser p(path);
-    if (p.parse())
+    
+    string path;
+    int width = 64;
+    if (argc == 2)
     {
+        path = string(argv[1]);
+    }
+
+    if (argc == 3)
+    {
+        // -width=64
+        string arg1 = string(argv[1]);
+        width = stoi(arg1.substr(7));
+        path = string(argv[2]);
+
+    }
+    Parser p(path,width);
+    if (auto prog = p.parse())
+    {
+        prog->codegen();
+        cout << path << "\t" << width << endl;
         cout << "success" << endl;
         //p.printTree();
 
@@ -378,14 +396,14 @@ int main(int argc, char **argv)
             TheModule->print(outfile, nullptr);
             outfile.close();
 
-            system("clang runtime.c test.ll -o a.out");
+            system("clang -O0 runtime.c test.ll -o a.out");
 
         }
         return 0;
     }
     else
     {
-        cout << "failed" << endl;
+        cout << "failed to parse" << endl;
         return 1;
     }
     //return true;
